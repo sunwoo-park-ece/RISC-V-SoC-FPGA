@@ -1,24 +1,12 @@
-# SoC AI 개발 플로우
+# RISC-V-SoC-FPGA
 
 이 저장소는 개인 FPGA SoC 프로젝트의 **공개 가능한 소스 기준 저장소**다. 확정된 사양, 직접 작성한 RTL/FW, 고지와 함께 재배포 가능한 오픈소스 RTL, 공개 검증 소스, 정제된 보고서를 보관한다.
-
-![Development Workflow](docs/assets/images/development_workflow.png)
-
-이 프로젝트는 WSL 중심의 엔지니어링 워크플로우를 사용합니다.
-
-- **WSL Local**은 구현 및 검증 에이전트가 사용하는 표준(canonical) 엔지니어링 작업 공간입니다.
-- **GitHub**은 이슈, 소스 이력 및 협업을 위한 버전 관리 공통 Source of Truth입니다.
-- **G-drive / WSL Mirror Drive**는 Chat 기반 검토를 위해 무결성(parity)이 검증된 스냅샷 미러를 저장합니다.
-- **G-drive / Chat Workspace Drive**는 소유자/Chat 간 쓰기 가능한 문서 및 인수인계 산출물 작성에 사용됩니다.
-- `sync.sh`는 전체 staging 스냅샷을 생성하고 무결성이 검증된 미러를 배포합니다.
-- 실선 화살표: 코드/데이터 동기화 또는 직접적인 저장소 상호작용
-- 점선 화살표: 태스크 / 이슈 / 문서 / 인수인계 흐름
 
 ## Hardware Overview
 
 현재 FPGA baseline은 5단계 파이프라인 RV32I CPU를 중심으로 AHB-Lite 버스 패브릭, 전용 메모리 및 디스플레이 서브시스템, APB 주변장치 서브시스템을 통합한 커스텀 SoC입니다.
 
-![Current SoC Block Diagram](docs/assets/images/soc_block_diagram.png)
+![Legacy RV32I FPGA SoC Architecture](docs/assets/images/legacy_rv32i_soc_architecture.png)
 
 > **그림의 범위:** 이 블록 다이어그램은 상위 수준의 아키텍처 개요를 제공합니다. 표준 아키텍처, 메모리 맵 및 인터페이스 계약은 [`spec/`](spec/README.md) (특히 [`spec/00_soc_architecture.md`](spec/00_soc_architecture.md), [`spec/01_memory_map.md`](spec/01_memory_map.md), [`spec/08_vga.md`](spec/kor/08_vga.ko.md))에 정의되어 있습니다. 그림과 사양서의 세부 내용이 다를 경우 사양서가 우선합니다.
 
@@ -51,6 +39,8 @@
 *시각적 데모는 화면 표시 동작을 보여줄 뿐이며, 내부 버스 프로토콜 정합성, 클럭 도메인 교차(CDC) 신호 무결성, 정적 타이밍 분석(STA) 결과를 증명하지 않습니다. 모든 기술적 계약은 시뮬레이션 어설션, 타이밍 분석 보고서, 검증 증적에 의해서만 규정됩니다.*
 
 ## 구현 예정 Roadmap
+
+![Planned Dual-Core RV32IMA MPSoC Architecture](docs/assets/images/mpsoc_planned_architecture.png)
 
 본 로드맵은 베이스라인 구축 이후 단계적 SoC 고도화를 위한 엔지니어링 개발 계획입니다. 이는 **향후 진행할 계획(Working Plan)이며 현재 구현 완료된 기능 목록이 아닙니다**:
 
@@ -120,9 +110,9 @@ PUBLIC_REPO + PUBLIC BEHAVIORAL MODELS
 - [역할 분담](docs/AGENT_ROLES.ko.md)
 - [현재 상태](docs/status/current_status.md)
 
-## 현재 상태
+## 현재 릴리스 상태
 
-현재 저장소는 진행 중인 소스 snapshot이며 Clean Baseline v1이나 벤더 IP 없는 FPGA bitstream build가 아니다. 동결 P08B VGA 기능 범위(`VGA-001..006`)는 directed RTL/DV와 보드 가시 smoke 증적으로 owner accepted 상태지만 CDC/STA, 경고, reset-window, programmer identity, release 작업은 열려 있다. CPU trap-policy Gate 0은 startup `mtvec` 설치가 commit된 이후에만 scoped PASS이며, 그 이전 reset window는 알려진 미검증 위험으로 남아 있다. [현재 상태](docs/status/current_status.md)와 [CS-009](docs/engineering/CS-009-p08b-vga-hwclear-w1c.md)를 참고한다.
+본 Legacy RV32I FPGA SoC의 Clean Baseline 작업은 대부분 완료되었으며, 남아 있는 검증, 수락 및 릴리스 게이트는 별도로 추적 관리됩니다. 이 baseline을 기반으로 하는 차세대 MPSoC 개발은 현재 별도의 private 저장소에서 진행 중입니다. 본 공개 저장소는 Legacy SoC 소스로 유지되며, 완료된 Clean Baseline v1 릴리스 또는 릴리스된 MPSoC를 의미하지 않습니다.
 
 CPU와 AES-GCM 오픈소스 의존성은 라이선스와 함께 포함한다. 공개 시뮬레이션 모델은 비공개 Intel/Altera 메모리·PLL·ADC IP의 인터페이스를 대체하고, VGA 동기 및 GSensor helper는 사양 기반으로 다시 구현했다. 비공개 Quartus 빌드는 동일한 공개 RTL을 직접 참조한다. Benchmark/Dhrystone 소스는 의도적으로 제외한다. 향후 성능보고서를 공개할 때는 별도 검토를 거치고 공식 Dhrystone 2.1과 프로젝트의 Dhrystone-style workload를 구분해야 한다. [Quartus 빌드 프로필](fpga/quartus/README.md)과 [모델 계약](docs/models/PORTABLE_MODEL_CONTRACTS.md)을 참고한다.
 
