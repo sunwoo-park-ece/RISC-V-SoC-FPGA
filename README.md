@@ -1,4 +1,4 @@
-# SoC AI Development Flow
+# RISC-V-SoC-FPGA
 
 This repository is the publishable source of truth for a personal FPGA SoC project. It contains specifications, project-authored RTL and firmware, redistributable third-party RTL with notices, portable verification sources, and reviewed reports.
 
