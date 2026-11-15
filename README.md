@@ -2,23 +2,11 @@
 
 This repository is the publishable source of truth for a personal FPGA SoC project. It contains specifications, project-authored RTL and firmware, redistributable third-party RTL with notices, portable verification sources, and reviewed reports.
 
-![Development Workflow](docs/assets/images/development_workflow.png)
-
-The project uses a WSL-centered engineering workflow.
-
-- **WSL Local** is the canonical engineering workspace used by implementation and verification agents.
-- **GitHub** is the versioned shared source of truth for issues, source history, and collaboration.
-- **G-drive / WSL Mirror Drive** stores a parity-verified snapshot mirror for Chat-assisted review.
-- **G-drive / Chat Workspace Drive** is used for owner/chat writable documentation and handoff artifacts.
-- `sync.sh` creates a full staging snapshot and deploys a parity-verified mirror.
-- Solid arrows: code/data synchronization or direct repository interaction
-- Dashed arrows: task / issue / documentation / handoff flow
-
 ## Hardware Overview
 
 The active FPGA baseline integrates a custom RV32I SoC around a 5-stage pipelined CPU, an AHB-Lite bus fabric, dedicated memory and display subsystems, and an APB peripheral subsystem.
 
-![Current SoC Block Diagram](docs/assets/images/soc_block_diagram.png)
+![Legacy RV32I FPGA SoC Architecture](docs/assets/images/legacy_rv32i_soc_architecture.png)
 
 > **Diagram scope:** This diagram provides a simplified architectural overview. The canonical architecture, memory map, and interface contracts are defined in [`spec/`](spec/README.md) (specifically [`spec/00_soc_architecture.md`](spec/00_soc_architecture.md), [`spec/01_memory_map.md`](spec/01_memory_map.md), and [`spec/08_vga.md`](spec/08_vga.md)). In case of disagreement, the specifications take precedence.
 
@@ -51,6 +39,8 @@ Demonstration recordings and photographs serve as supporting visual evidence con
 *Visual demonstrations illustrate observable screen behavior; they do not prove internal bus protocol compliance, CDC clock-domain crossing safety, or static timing analysis (STA) sign-off. All technical contracts remain governed by simulation assertions, timing reports, and formal verification evidence.*
 
 ## Planned Implementation Roadmap
+
+![Planned Dual-Core RV32IMA MPSoC Architecture](docs/assets/images/mpsoc_planned_architecture.png)
 
 The implementation roadmap outlines the structured engineering trajectory for post-baseline SoC evolution. This sequence represents a **forward-looking working plan, not currently implemented features**:
 
@@ -123,7 +113,7 @@ No complete vendor GUI project, generated vendor HDL, or vendor simulation colla
 
 ## Current release status
 
-This is an in-progress source snapshot, not Clean Baseline v1 and not a vendor-free FPGA bitstream build. The frozen P08B VGA functional scope (`VGA-001..006`) is owner accepted with directed RTL/DV and board-visible smoke evidence, while CDC/STA, warning, reset-window, programmer-identity, and release work remain open. The CPU trap-policy Gate 0 is a scoped pass only after the startup `mtvec` installation commits; the pre-`mtvec` reset window remains a known, unverified risk. See [current status](docs/status/current_status.md) and [CS-009](docs/engineering/CS-009-p08b-vga-hwclear-w1c.md).
+Most of the Clean Baseline work for this Legacy RV32I FPGA SoC has been completed, with any remaining verification, acceptance, and release gates tracked separately. Development of a next-generation MPSoC based on this baseline is now underway in a separate private repository. This public repository remains the Legacy SoC source and does not represent a completed Clean Baseline v1 release or a released MPSoC.
 
 CPU and AES-GCM open-source dependencies are present with their licenses. Public simulation models cover private Intel/Altera memories, PLLs and ADC IP, while project-owned replacements cover VGA sync and GSensor helpers. A disposable private Quartus build binds the same public RTL to private vendor IP. Benchmark and Dhrystone source files are intentionally excluded. Any later performance report must be separately reviewed and must distinguish official Dhrystone 2.1 from the project's Dhrystone-style workload. See [Quartus build profiles](fpga/quartus/README.md) and [model contracts](docs/models/PORTABLE_MODEL_CONTRACTS.md).
 
